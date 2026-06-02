@@ -29,7 +29,9 @@ meses = [
     "DEZEMBRO"
 ]
 
-
+incluir_relatorios = st.checkbox(
+        "Incluir relatórios"
+    )
 
 col1, col2, col3 = st.columns([1, 1, 4])
 
@@ -232,9 +234,9 @@ if st.button("🚀 Processar PDF"):
 
         st.session_state.pares_extraidos = pares_extraidos
 
-        st.success(
-            f"{len(pares_extraidos)} registros encontrados."
-        )
+        #st.success(
+        #    f"{len(pares_extraidos)} registros encontrados."
+        #)
         
         # Exibição da tabela extraída
         #st.dataframe(
@@ -254,6 +256,7 @@ if st.session_state.pares_extraidos:
     st.write("**✅ Marque as OSs**")
 
     selecionadas = []
+    itens_completos = []
 
     for i, (os_val, rhbt_val, dia_semana) in enumerate(
         st.session_state.pares_extraidos
@@ -261,34 +264,35 @@ if st.session_state.pares_extraidos:
 
         label = f"{os_val} - {rhbt_val} - {dia_semana}"
 
-        if st.checkbox(
-            label,
-            key=f"chk_{i}"
-        ):
+        if st.checkbox(label, key=f"chk_{i}"):
             selecionadas.append(os_val)
+
+            # Condiciona a inclusão do relatório com base no checkbox do topo
+            if incluir_relatorios:
+                itens_completos.append(f"{os_val} (Ação Fiscal: {rhbt_val})")
+            else:
+                itens_completos.append(os_val)
 
     if selecionadas:
 
-        st.markdown(
-            f"""
-            <h1 style='text-align:center;'>
-            Total de OSs selecionadas: {len(selecionadas)}
-            </h1>
-            """,
-            unsafe_allow_html=True
-        )
+        # Mostra um contador nativo e destacado no topo
+        st.metric(label="Quantidade de OSs selecionadas", value=len(selecionadas))
 
         resultado = "; ".join(selecionadas)
+        
+        resultado_completo = "; ".join(
+            itens_completos
+        )
 
         st.markdown("### OSs Selecionadas")
 
         st.text_area(
             "OSs:",
-            value=resultado,
+            value=resultado_completo,
             height=120
         )
 
-        texto_sei = f"Declaro, ciente das penalidades previstas no art. 299 do Código Penal, que para fins de recebimento de Indenização de Transporte, nos termos do art. 106 da Lei Complementar nº 840, de 23 de dezembro de 2011 e o Decreto nº 43.138, de 24 de março de 2022, conforme autorização contida nas Ordem(ns) de Serviço(s) nº(s) {resultado} que realizei os serviços externos no mês de {mes}, do ano de {ano}, em sua integralidade (10/10), no(s) local(is) constante(s) da(s) Ordem(ns) de Serviço supramencionada(s), utilizando meio próprio de locomoção, estando ciente das penalidades previstas no art. 299 do Código Penal e sanções constantes da Lei Complementar nº 840, de 23 de dezembro de 2011."
+        texto_sei = f"Declaro, ciente das penalidades previstas no art. 299 do Código Penal, que para fins de recebimento de Indenização de Transporte, nos termos do art. 106 da Lei Complementar nº 840, de 23 de dezembro de 2011 e o Decreto nº 43.138, de 24 de março de 2022, conforme autorização contida nas Ordem(ns) de Serviço(s) nº(s) {resultado_completo} que realizei os serviços externos no mês de {mes}, do ano de {ano}, em sua integralidade (10/10), no(s) local(is) constante(s) da(s) Ordem(ns) de Serviço supramencionada(s), utilizando meio próprio de locomoção, estando ciente das penalidades previstas no art. 299 do Código Penal e sanções constantes da Lei Complementar nº 840, de 23 de dezembro de 2011."
 
         st.markdown("### 📋 Texto para colar no processo SEI")
 
